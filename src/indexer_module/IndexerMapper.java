@@ -1,7 +1,6 @@
 package indexer_module;
 
 import common.MapStringConverter;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -14,6 +13,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 public class IndexerMapper
@@ -66,7 +66,8 @@ public class IndexerMapper
             }
         }
         // Write results normalized by word's IDF
-        for (String word : doc_map.keySet()) {
+        Set<String> keys = doc_map.keySet();
+        for (String word : keys) {
             Integer word_id = word2id.get(word);
             double word_idf = word2idf.get(word).doubleValue();
             Double norm_count = doc_map.get(word).doubleValue() / word_idf;
