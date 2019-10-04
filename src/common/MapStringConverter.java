@@ -1,8 +1,9 @@
 package common;
 
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class MapStringConverter {
     public static final String KVSeparator = "=";
@@ -35,8 +36,9 @@ public class MapStringConverter {
     }
 
     public static <K, V> String map2String(HashMap<K, V> map) {
-        List<String> pairs = new LinkedList<>();
-        for (K key : map.keySet()) {
+        List<String> pairs = new ArrayList<>();
+        Set<K> keys = map.keySet();
+        for (K key : keys) {
             pairs.add(makeStringPair(key, map.get(key)));
         }
         return mergeStringPairs(pairs);
@@ -61,6 +63,8 @@ public class MapStringConverter {
     }
 
     public static <K, V> Pair<K, V> string2Pair(String string, FromString<K> k2str, FromString<V> v2str) {
+        if (string.isEmpty()) return null;
+
         String[] s = string.split(KVSeparator);
         K key = k2str.convert(s[0]);
         V value = v2str.convert(s[1]);
@@ -68,11 +72,13 @@ public class MapStringConverter {
     }
 
     public static <K, V> HashMap<K, V> string2Map(String string, FromString<K> k2str, FromString<V> v2str) {
-        String[] pairs = string.split(PairSeparator);
         HashMap<K, V> map = new HashMap<>();
-        for (String pair: pairs) {
+        if (string.isEmpty()) return map;
+
+        String[] pairs = string.split(PairSeparator);
+        for (String pair : pairs) {
             Pair<K, V> obj = string2Pair(pair, k2str, v2str);
-            map.put(obj.key, obj.value);
+            if (obj != null) map.put(obj.key, obj.value);
         }
         return map;
     }
