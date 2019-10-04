@@ -1,5 +1,8 @@
 package common;
 
+import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.IntWritable;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +14,8 @@ public class MapStringConverter {
     public static final FromString<Double> parseDouble = Double::parseDouble;
     public static final FromString<Integer> parseInt = Integer::parseInt;
     public static final FromString<String> parseString = string -> string;
+    public static final FromString<IntWritable> parseIntWritable = string -> new IntWritable(Integer.parseInt(string));
+    public static final FromString<DoubleWritable> parseDoubleWritable = string -> new DoubleWritable(Integer.parseInt(string));
 
     private MapStringConverter() {
     }
