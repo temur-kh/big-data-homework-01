@@ -63,9 +63,8 @@ public class MapStringConverter {
     }
 
     public static <K, V> Pair<K, V> string2Pair(String string, FromString<K> k2str, FromString<V> v2str, String separator) {
-        if (string.isEmpty()) return null;
-
         String[] s = string.split(separator);
+        if (s.length != 2) return null;
         K key = k2str.convert(s[0]);
         V value = v2str.convert(s[1]);
         return new Pair<K, V>(key, value);
@@ -114,10 +113,10 @@ public class MapStringConverter {
         RemoteIterator<LocatedFileStatus> it = fs.listFiles(parentDir, false);
         ArrayList<String> pairs = new ArrayList<>();
         while (it.hasNext()) {
-            LocatedFileStatus lfs = it.next();
-            FSDataInputStream inputStream = fs.open(lfs.getPath());
+            FSDataInputStream inputStream = fs.open(it.next().getPath());
             String in = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
             inputStream.close();
+            if (in.isEmpty()) continue;
             String[] lines = in.split(FilePairSeparator);
             pairs.addAll(Arrays.asList(lines));
         }
