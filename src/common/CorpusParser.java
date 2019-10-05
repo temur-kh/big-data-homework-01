@@ -75,14 +75,14 @@ public class CorpusParser{
         }
     }
 
-    public static String run(String inputPath, String outputDir, int parseMode) throws Exception {
+    public static Path run(Path inputPath, Path outputDir, int parseMode) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "Corpus_Parser");
         job.setJarByClass(CorpusParser.class);
 
         FileSystem fs = FileSystem.get(conf);
         Path[] paths = new Path[1];
-        paths[0] = new Path(inputPath);
+        paths[0] = inputPath;
         FileStatus[] fst = fs.listStatus(paths);
 
         for (FileStatus fsi : fst) {
@@ -102,7 +102,7 @@ public class CorpusParser{
         job.setOutputValueClass(Text.class);
 
         if (job.waitForCompletion(true)) {
-            return outputPath.toString();
+            return outputPath;
         } else {
             throw new Exception();
         }

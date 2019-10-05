@@ -47,7 +47,7 @@ public class WordEnumerator {
         }
     }
 
-    public static String run(String inputPath, String outputDir) throws Exception {
+    public static Path run(Path inputPath, Path outputDir) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "WordEnumeration");
         job.setJarByClass(WordEnumerator.class);
@@ -58,11 +58,11 @@ public class WordEnumerator {
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(1);
 
-        FileInputFormat.addInputPath(job, new Path(inputPath));
+        FileInputFormat.addInputPath(job, inputPath);
         Path outputPath = new Path(outputDir, "word_enumerator");
         FileOutputFormat.setOutputPath(job, outputPath);
         if (job.waitForCompletion(true)) {
-            return outputPath.toString();
+            return outputPath;
         } else {
             throw new Exception();
         }

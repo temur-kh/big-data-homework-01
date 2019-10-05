@@ -1,18 +1,20 @@
 package indexer_module;
 
 import common.CorpusParser;
+import org.apache.hadoop.fs.Path;
 
 public class IndexingEngine {
     public static void main(String[] args) throws Exception {
         // input corpus files directory
-        String corpusPath = args[1];
+        Path corpusPath = new Path(args[1]);
         // directory for job outputs to save in
-        String outputDir = args[2];
+        Path outputDir = new Path(args[2]);
 
-        String parsedCorpusPath = CorpusParser.run(corpusPath, outputDir, CorpusParser.PARSE_TEXT);
-        String parsedCorpusURLTitlePath = CorpusParser.run(corpusPath, outputDir, CorpusParser.PARSE_URL_TITLE);
-        String docCountPath = DocumentCounter.run(parsedCorpusPath, outputDir);
-        String wordEnumPath = WordEnumerator.run(parsedCorpusPath, outputDir);
+        Path parsedCorpusPath = CorpusParser.run(corpusPath, outputDir, CorpusParser.PARSE_TEXT);
+        Path parsedCorpusURLTitlePath = CorpusParser.run(corpusPath, outputDir, CorpusParser.PARSE_URL_TITLE);
+        Path docCountPath = DocumentCounter.run(parsedCorpusPath, outputDir);
+        Path wordEnumPath = WordEnumerator.run(parsedCorpusPath, outputDir);
+        Path docVectorsPath = Indexer.run(parsedCorpusPath, wordEnumPath, docCountPath, outputDir);
 
     }
 }
