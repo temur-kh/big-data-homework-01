@@ -9,13 +9,14 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class Indexer {
     public static final String JobName = "indexer";
     public static final String StringIDF = "indexer.idf";
     public static final String StringWords = "indexer.words";
 
-    public static String run(String path_docId2text, String path_word2Id, String path_word2idf, String path_outDir)
+    public static Path run(Path path_docId2text, Path path_word2Id, Path path_word2IDF, Path path_outDir)
             throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, JobName);
@@ -26,15 +27,17 @@ public class Indexer {
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
         // Add words and idf to cache
-        job.addCacheFile(new Path(path_word2Id).toUri());
-        job.addCacheFile(new Path(path_word2idf).toUri());
+        conf.set(StringWords, path_word2Id.toString());
+        job.addCacheFile(path_word2Id.toUri());
+        conf.set(StringWords, path_word2IDF.toString());
+        job.addCacheFile(path_word2IDF.toUri());
 
-        FileInputFormat.addInputPath(job, new Path(path_docId2text));
+        FileInputFormat.addInputPath(job, path_docId2text);
         Path out = new Path(path_outDir, "document_vectors");
         FileOutputFormat.setOutputPath(job, out);
 
         if (job.waitForCompletion(true)) {
-            return out.toString();
+            return out;
         }
         throw new Exception("Indexer.run was not completed");
     }
