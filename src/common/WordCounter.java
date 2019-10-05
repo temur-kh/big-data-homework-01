@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class WordCounter {
-    public static HashMap<String, Integer> count(String string) {
+    private WordCounter() {};
+
+    public static HashMap<String, Integer> countWords(String string) {
         StringTokenizer tokens = new StringTokenizer(string);
         HashMap<String, Integer> map = new HashMap<>();
         while (tokens.hasMoreTokens()) {
