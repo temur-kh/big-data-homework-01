@@ -8,9 +8,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.IOException;
-import java.net.URI;
-
 public class Indexer {
     public static final String JobName = "indexer";
     public static final String StringIDF = "indexer.idf";
@@ -38,7 +35,8 @@ public class Indexer {
 
         if (job.waitForCompletion(true)) {
             return out;
+        } else {
+            throw new Exception("Indexer.run was not completed");
         }
-        throw new Exception("Indexer.run was not completed");
     }
 }
