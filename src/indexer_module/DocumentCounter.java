@@ -53,7 +53,7 @@ public class DocumentCounter {
         }
     }
 
-    public void run(String[] args) throws Exception {
+    public static String run(String inputPath, String outputDir) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "DocumentCount");
         job.setJarByClass(DocumentCounter.class);
@@ -62,8 +62,14 @@ public class DocumentCounter {
         job.setReducerClass(IDFReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        FileInputFormat.addInputPath(job, new Path(inputPath));
+        Path outputPath = new Path(outputDir, "document_counter");
+        FileOutputFormat.setOutputPath(job, outputPath);
+        if (job.waitForCompletion(true)) {
+            return outputPath.toString();
+        } else {
+            throw new Exception();
+        }
     }
 }

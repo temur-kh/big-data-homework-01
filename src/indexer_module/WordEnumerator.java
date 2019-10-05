@@ -1,4 +1,4 @@
-//package indexer_module;
+package indexer_module;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -47,11 +47,9 @@ public class WordEnumerator {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println("started");
+    public static String run(String inputPath, String outputDir) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "WordEnumeration");
-        System.out.println("conf done");
         job.setJarByClass(WordEnumerator.class);
         job.setMapperClass(WordMapper.class);
         job.setCombinerClass(EnumerationReducer.class);
@@ -59,9 +57,14 @@ public class WordEnumerator {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
         job.setNumReduceTasks(1);
-        System.out.println("eveything is okay");
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        FileInputFormat.addInputPath(job, new Path(inputPath));
+        Path outputPath = new Path(outputDir, "word_enumerator");
+        FileOutputFormat.setOutputPath(job, outputPath);
+        if (job.waitForCompletion(true)) {
+            return outputPath.toString();
+        } else {
+            throw new Exception();
+        }
     }
 }
