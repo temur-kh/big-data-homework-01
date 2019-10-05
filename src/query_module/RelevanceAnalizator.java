@@ -25,18 +25,18 @@ public class RelevanceAnalizator {
         ) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             String queryVectorString = conf.get("query_vector");
-            Map<IntWritable, DoubleWritable> queryVector = MapStringConverter.string2Map(queryVectorString, MapStringConverter.parseIntWritable, MapStringConverter.parseDoubleWritable);
-            Map<IntWritable, DoubleWritable> docVector = MapStringConverter.string2Map(docVectorString.toString(), MapStringConverter.parseIntWritable, MapStringConverter.parseDoubleWritable);
+            Map<Integer, Double> queryVector = MapStringConverter.string2Map(queryVectorString, MapStringConverter.parseInt, MapStringConverter.parseDouble);
+            Map<Integer, Double> docVector = MapStringConverter.string2Map(docVectorString.toString(), MapStringConverter.parseInt, MapStringConverter.parseDouble);
 
-            Map<IntWritable, DoubleWritable> leftVector, rightVector;
+            Map<Integer, Double> leftVector, rightVector;
             leftVector = queryVector.size() < docVector.size() ? queryVector : docVector;
             rightVector = queryVector.size() > docVector.size() ? queryVector : docVector;
 
             double result = 0;
-            for (IntWritable wordId : leftVector.keySet()) {
+            for (Integer wordId : leftVector.keySet()) {
                 if (rightVector.containsKey(wordId)) {
-                    double leftValue = leftVector.get(wordId).get();
-                    double rightValue = rightVector.get(wordId).get();
+                    double leftValue = leftVector.get(wordId);
+                    double rightValue = rightVector.get(wordId);
                     result += leftValue * rightValue;
                 }
             }
@@ -68,8 +68,7 @@ public class RelevanceAnalizator {
         }
     }
 
-    public void run(String[] args) throws Exception {
-        String queryVectorString = args[2];
+    public static String run(String queryVectorString, String docTFIDFPath, String outputDir) throws Exception {
         Configuration conf = new Configuration();
         conf.set("query_vector", queryVectorString);
 
@@ -82,9 +81,14 @@ public class RelevanceAnalizator {
         job.setOutputKeyClass(DoubleWritable.class);
         job.setOutputValueClass(IntWritable.class);
 
-        FileInputFormat.addInputPath(job, new Path(args[0]));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileInputFormat.addInputPath(job, new Path(docTFIDFPath));
+        Path outputPath = new Path(outputDir, "relevance_analyzer");
+        FileOutputFormat.setOutputPath(job, outputPath);
 
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+        if (job.waitForCompletion(true)) {
+            return outputPath.toString();
+        } else {
+            throw new Exception();
+        }
     }
 }
