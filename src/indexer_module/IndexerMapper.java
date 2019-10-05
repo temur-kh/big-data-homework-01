@@ -3,13 +3,13 @@ package indexer_module;
 import common.MapStringConverter;
 import common.WordCounter;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
 
 public class IndexerMapper
@@ -19,20 +19,13 @@ public class IndexerMapper
     private HashMap<String, Integer> word2IDF;
 
     @Override
-    public void setup(Context context) throws IOException,
-            InterruptedException {
+    public void setup(Context context) throws IOException {
         Configuration conf = context.getConfiguration();
-        String path_words = conf.get(Indexer.StringWords);
-        String path_idf = conf.get(Indexer.StringIDF);
-        URI[] filesURIs = Job.getInstance(conf).getCacheFiles();
-        for (URI uri : filesURIs) {
-            String path = uri.getPath();
-            if (path.equals(path_words)) {
-                word2Id = MapStringConverter.fileStrInt2Map(path);
-            } else if (path.equals(path_idf)) {
-                word2IDF = MapStringConverter.fileStrInt2Map(path);
-            }
-        }
+        FileSystem fs = FileSystem.get(conf);
+        Path path_words = new Path(conf.get(Indexer.StringWords));
+        Path path_idf = new Path(conf.get(Indexer.StringIDF));
+        word2Id = MapStringConverter.hdfsDirStrInt2Map(fs, path_words);
+        word2IDF = MapStringConverter.hdfsDirStrInt2Map(fs, path_idf);
     }
 
     @Override

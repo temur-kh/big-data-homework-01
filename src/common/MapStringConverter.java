@@ -1,10 +1,10 @@
 package common;
 
-import org.apache.hadoop.fs.Path;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.*;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +14,7 @@ public class MapStringConverter {
     private static final String KVSeparator = "=";
     private static final String PairSeparator = ";";
     private static final String FileKVSeparator = "\t";
+    private static final String FilePairSeparator = "\n";
 
     public static final FromString<Double> parseDouble = Double::parseDouble;
     public static final FromString<Integer> parseInt = Integer::parseInt;
@@ -86,7 +87,7 @@ public class MapStringConverter {
     }
 
     public static <K, V> HashMap<K, V> string2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str,
-                                            ValueCombinator<V> comb) {
+                                                  ValueCombinator<V> comb) {
         return string2Map(pairs, k2str, v2str, comb, KVSeparator);
     }
 
@@ -108,28 +109,30 @@ public class MapStringConverter {
         return string2Map(string, k2str, v2str, selectLatter);
     }
 
-    public static <K, V> HashMap<K, V> file2Map(String path, FromString<K> k2str, FromString<V> v2str,
-                                          ValueCombinator<V> comb) throws IOException {
-        FileReader r = new FileReader(new Path(path).getName());
-        BufferedReader reader = new BufferedReader(r);
+    public static <K, V > HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str,
+                                                    ValueCombinator<V> comb) throws IOException {
+        RemoteIterator<LocatedFileStatus> it = fs.listFiles(parentDir, false);
         ArrayList<String> pairs = new ArrayList<>();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            pairs.add(line.trim());
+        while (it.hasNext()) {
+            LocatedFileStatus lfs = it.next();
+            FSDataInputStream inputStream = fs.open(lfs.getPath());
+            String in = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+            inputStream.close();
+            String[] lines = in.split(FilePairSeparator);
+            pairs.addAll(Arrays.asList(lines));
         }
-        reader.close();
         return string2Map(pairs, k2str, v2str, comb, FileKVSeparator);
     }
 
-    public static <K, V> HashMap<K, V> file2Map(String path, FromString<K> k2str, FromString<V> v2str) throws IOException {
-        return file2Map(path, k2str, v2str, selectLatter);
+    public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str) throws IOException {
+        return hdfsDir2Map(fs, parentDir, k2str, v2str, selectLatter);
     }
 
-    public static HashMap<String, Integer> fileStrInt2Map(String path) throws IOException {
-        return file2Map(path, parseString, parseInt);
+    public static HashMap<String, Integer> hdfsDirStrInt2Map(FileSystem fs, Path parentDir) throws IOException {
+        return hdfsDir2Map(fs, parentDir, parseString, parseInt);
     }
 
-    public static HashMap<Integer, String> fileIntStr2Map(String path) throws IOException {
-        return file2Map(path, parseInt, parseString);
+    public static HashMap<Integer, String> hdfsDirIntStr2Map(FileSystem fs, Path parentDir) throws IOException {
+        return hdfsDir2Map(fs, parentDir, parseInt, parseString);
     }
 }

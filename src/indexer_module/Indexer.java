@@ -8,9 +8,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.IOException;
-import java.net.URI;
-
 public class Indexer {
     public static final String JobName = "indexer";
     public static final String StringIDF = "indexer.idf";
@@ -26,11 +23,9 @@ public class Indexer {
         job.setReducerClass(IndexerReducer.class);
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
-        // Add words and idf to cache
+        // Add words and idf to conf
         conf.set(StringWords, path_word2Id.toString());
-        job.addCacheFile(path_word2Id.toUri());
         conf.set(StringWords, path_word2IDF.toString());
-        job.addCacheFile(path_word2IDF.toUri());
 
         FileInputFormat.addInputPath(job, path_docId2text);
         Path out = new Path(path_outDir, "document_vectors");
