@@ -26,6 +26,7 @@ public class IndexerMapper
         Path path_idf = new Path(conf.get(Indexer.StringIDF));
         word2Id = MapStringConverter.hdfsDirStrInt2Map(fs, path_words);
         word2IDF = MapStringConverter.hdfsDirStrInt2Map(fs, path_idf);
+        fs.close();
     }
 
     @Override
