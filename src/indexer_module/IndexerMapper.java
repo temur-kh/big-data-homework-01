@@ -1,6 +1,7 @@
 package indexer_module;
 
 import common.MapStringConverter;
+import common.WordCounter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -13,8 +14,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 public class IndexerMapper
         extends Mapper<IntWritable, Text, IntWritable, Text> {
@@ -54,20 +53,9 @@ public class IndexerMapper
 
     @Override
     public void map(IntWritable key, Text value, Context context) throws IOException, InterruptedException {
-        StringTokenizer tokens = new StringTokenizer(value.toString());
-        HashMap<String, Integer> doc_map = new HashMap<>();
-        // Count words for this doc
-        while (tokens.hasMoreTokens()) {
-            String word = tokens.nextToken();
-            if (doc_map.containsKey(word)) {
-                doc_map.put(word, doc_map.get(word) + 1);
-            } else {
-                doc_map.put(word, 1);
-            }
-        }
+        HashMap<String, Integer> doc_map = WordCounter.count(value.toString());
         // Write results normalized by word's IDF
-        Set<String> keys = doc_map.keySet();
-        for (String word : keys) {
+        for (String word : doc_map.keySet()) {
             Integer word_id = word2id.get(word);
             double word_idf = word2idf.get(word).doubleValue();
             Double norm_count = doc_map.get(word).doubleValue() / word_idf;

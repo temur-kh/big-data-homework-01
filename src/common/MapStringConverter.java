@@ -1,12 +1,9 @@
 package common;
 
-import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 public class MapStringConverter {
     private static final String KVSeparator = "=";
@@ -15,8 +12,11 @@ public class MapStringConverter {
     public static final FromString<Double> parseDouble = Double::parseDouble;
     public static final FromString<Integer> parseInt = Integer::parseInt;
     public static final FromString<String> parseString = string -> string;
-    public static final FromString<IntWritable> parseIntWritable = string -> new IntWritable(Integer.parseInt(string));
-    public static final FromString<DoubleWritable> parseDoubleWritable = string -> new DoubleWritable(Integer.parseInt(string));
+
+    public static final ValueCombinator selectFormer = (v1, v2) -> v1;
+    public static final ValueCombinator selectLatter = (v1, v2) -> v2;
+    public static final ValueCombinator<Integer> sumInt = Integer::sum;
+    public static final ValueCombinator<Double> sumDouble = Double::sum;
 
     private MapStringConverter() {
     }
@@ -25,33 +25,17 @@ public class MapStringConverter {
         return key.toString() + KVSeparator + value.toString();
     }
 
-    public static String mergeStringPairs(List<String> pairs) {
-        if (pairs.isEmpty()) {
-            return "";
-        }
-        int size = pairs.size();
-        if (size == 1) {
-            return pairs.get(0);
-        }
-        StringBuilder out = new StringBuilder(pairs.get(0));
-        for (int i = 1; i < size; ++i) {
-            out.append(PairSeparator).append(pairs.get(i));
-        }
-        return out.toString();
-    }
-
     public static <K, V> String map2String(HashMap<K, V> map) {
         List<String> pairs = new ArrayList<>();
-        Set<K> keys = map.keySet();
-        for (K key : keys) {
+        for (K key : map.keySet()) {
             pairs.add(makeStringPair(key, map.get(key)));
         }
-        return mergeStringPairs(pairs);
+        return String.join(PairSeparator, pairs);
     }
 
     public static class Pair<K, V> {
-        public K key;
-        public V value;
+        K key;
+        V value;
 
         Pair(K key, V value) {
             this.key = key;
@@ -67,6 +51,10 @@ public class MapStringConverter {
         T convert(String string);
     }
 
+    public interface ValueCombinator<T> {
+        T combine(T v1, T v2);
+    }
+
     public static <K, V> Pair<K, V> string2Pair(String string, FromString<K> k2str, FromString<V> v2str) {
         if (string.isEmpty()) return null;
 
@@ -76,15 +64,31 @@ public class MapStringConverter {
         return new Pair<K, V>(key, value);
     }
 
-    public static <K, V> HashMap<K, V> string2Map(String string, FromString<K> k2str, FromString<V> v2str) {
+    public static <K, V> HashMap<K, V> string2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str,
+                                                  ValueCombinator<V> comb) {
         HashMap<K, V> map = new HashMap<>();
-        if (string.isEmpty()) return map;
-
-        String[] pairs = string.split(PairSeparator);
         for (String pair : pairs) {
             Pair<K, V> obj = string2Pair(pair, k2str, v2str);
-            if (obj != null) map.put(obj.key, obj.value);
+            if (obj == null) continue;
+            if (map.containsKey(obj.key)) {
+                map.put(obj.key, comb.combine(map.get(obj.key), obj.value));
+            } else {
+                map.put(obj.key, obj.value);
+            }
         }
         return map;
+    }
+
+    public static <K, V> HashMap string2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str) {
+        return string2Map(pairs, k2str, v2str, selectLatter);
+    }
+
+    public static <K, V> HashMap<K, V> string2Map(String string, FromString<K> k2str, FromString<V> v2str,
+                                                  ValueCombinator<V> comb) {
+        return string2Map(Arrays.asList(string.split(PairSeparator)), k2str, v2str, comb);
+    }
+
+    public static <K, V> HashMap string2Map(String string, FromString<K> k2str, FromString<V> v2str) {
+        return string2Map(string, k2str, v2str, selectLatter);
     }
 }
