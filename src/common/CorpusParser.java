@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class CorpusParser{
 
-    public static class DocMapper extends  Mapper<Object, Text, IntWritable, Text>
+    public static class DocTextMapper extends  Mapper<Object, Text, IntWritable, Text>
     {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException
         {
@@ -31,6 +31,25 @@ public class CorpusParser{
                 int id = Integer.parseInt(sid);
                 String text = jb.getString("text");
                 context.write(new IntWritable(id), new Text(text));
+            }catch(JSONException e){
+                context.write(new IntWritable(1), new Text("error"));
+            }
+        }
+    }
+
+    public static class DocUrlTitleMapper extends  Mapper<Object, Text, IntWritable, Text>
+    {
+        private String separator = " ";
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException
+        {
+            String line = value.toString();
+            try {
+                JSONObject jb = new JSONObject(line);
+                String sid = jb.getString("id");
+                int id = Integer.parseInt(sid);
+                String url = jb.getString("url");
+                String title = jb.getString("title");
+                context.write(new IntWritable(id), new Text(url + separator + title));
             }catch(JSONException e){
                 context.write(new IntWritable(1), new Text("error"));
             }
@@ -53,7 +72,7 @@ public class CorpusParser{
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String args[]) throws Exception {
         Configuration conf = new Configuration();
         Job job = new Job(conf, "Corpus_Parser");
         job.setJarByClass(CorpusParser.class);
@@ -63,9 +82,15 @@ public class CorpusParser{
         paths[0] = new Path(args[1]);
         FileStatus[] fst = fs.listStatus(paths);
 
-        for(FileStatus fsi: fst){
-            MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocMapper.class);
+        int modeInt = Integer.parseInt(args[0]);
+        for (FileStatus fsi : fst) {
+            if(modeInt == 0) {
+                MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocTextMapper.class);
+            }else {
+                MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocUrlTitleMapper.class);
+            }
         }
+
         FileOutputFormat.setOutputPath(job, new Path(args[2]));
         job.setReducerClass(DocReducer.class);
         job.setNumReduceTasks(1);
