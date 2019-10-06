@@ -16,6 +16,10 @@ public class Indexer {
     public static Path run(Path path_docId2text, Path path_word2Id, Path path_word2IDF, Path path_outDir)
             throws Exception {
         Configuration conf = new Configuration();
+        // Add words and idf to conf
+        conf.set(StringWords, path_word2Id.toString());
+        conf.set(StringIDF, path_word2IDF.toString());
+
         Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(Indexer.class);
         job.setMapperClass(IndexerMapper.class);
@@ -23,9 +27,6 @@ public class Indexer {
         job.setReducerClass(IndexerReducer.class);
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
-        // Add words and idf to conf
-        conf.set(StringWords, path_word2Id.toString());
-        conf.set(StringWords, path_word2IDF.toString());
 
         FileInputFormat.addInputPath(job, path_docId2text);
         Path out = new Path(path_outDir, "document_vectors");

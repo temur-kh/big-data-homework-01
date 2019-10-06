@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class IndexerMapper
-        extends Mapper<IntWritable, Text, IntWritable, Text> {
+        extends Mapper<Object, Text, IntWritable, Text> {
 
     private HashMap<String, Integer> word2Id;
     private HashMap<String, Integer> word2IDF;
@@ -30,8 +30,10 @@ public class IndexerMapper
     }
 
     @Override
-    public void map(IntWritable key, Text value, Context context) throws IOException, InterruptedException {
-        HashMap<String, Integer> doc_map = WordCounter.countWords(value.toString());
+    public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        String[] key_value = value.toString().split("\t");
+        IntWritable doc_id = new IntWritable(Integer.parseInt(key_value[0]));
+        HashMap<String, Integer> doc_map = WordCounter.countWords(key_value[1]);
         // Write results normalized by word's IDF
         for (String word : doc_map.keySet()) {
             Integer word_id = word2Id.get(word);
@@ -40,7 +42,7 @@ public class IndexerMapper
             // Convert to map pair
             String pair = MapStringConverter.makeStringPair(word_id, norm_count);
             value.set(pair);
-            context.write(key, value);
+            context.write(doc_id, value);
         }
     }
 }

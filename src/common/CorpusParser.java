@@ -67,7 +67,7 @@ public class CorpusParser{
             String outputText = "";
             for(Text text: texts){
                 String t = text.toString();
-                t = t.replace("\n", " ").replace("\r", " ");
+                t = t.replace("\n", " ").replace("\r", " ").replace("\t", " ");
                 outputText += t;
             }
             context.write(key, new Text(outputText));
