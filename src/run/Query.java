@@ -1,9 +1,9 @@
-package ranker_engine;
+package run;
 
 import common.MapStrConvert;
 import common.TextParser;
-import indexing_engine.modules.CorpusParser;
-import indexing_engine.modules.Indexer;
+import indexing_engine.CorpusParser;
+import indexing_engine.Indexer;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -12,8 +12,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import ranker_engine.modules.QueryMapper;
-import ranker_engine.modules.QueryReducer;
+import ranker_engine.QueryMapper;
+import ranker_engine.QueryReducer;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class Query {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         if (args.length != 4) {
-            System.out.println("Usage:\n$hadoop jar <jar_name>.jar Query " +
+            System.out.println("Usage:\n$hadoop jar <jar_name>.jar run.Query " +
                     "<path to output directory of IndexingEngine on HDFS> " +
                     "<query in quotes> <number of most relevant docs>");
             return;

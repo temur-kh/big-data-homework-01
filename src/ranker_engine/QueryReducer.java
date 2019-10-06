@@ -1,9 +1,9 @@
-package ranker_engine.modules;
+package ranker_engine;
 
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
-import ranker_engine.Query;
+import run.Query;
 
 import java.io.IOException;
 import java.util.ArrayList;

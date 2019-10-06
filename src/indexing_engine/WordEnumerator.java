@@ -1,4 +1,4 @@
-package indexing_engine.modules;
+package indexing_engine;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -11,33 +11,29 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 
-public class DocumentCounter {
-    private static final String JobName = "document_count";
-    private static final String OutputDir = "document_counter";
+public class WordEnumerator {
+    private static final String JobName = "word_enumeration";
+    public static final String OutputDir = "word_enumerator";
 
-    public static class IDFReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-        private IntWritable result = new IntWritable();
+    public static class EnumerationReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+        private static int id = 0;
 
         public void reduce(Text word, Iterable<IntWritable> values, Context context)
                 throws IOException, InterruptedException {
-            int countOccurrences = 0;
-            for (IntWritable val : values) {
-                countOccurrences += val.get();
-            }
-            result.set(countOccurrences);
-            context.write(word, result);
+            context.write(word, new IntWritable(++id));
         }
     }
 
     public static Path run(Path inputPath, Path outputDir) throws Exception {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, JobName);
-        job.setJarByClass(DocumentCounter.class);
+        job.setJarByClass(WordEnumerator.class);
         job.setMapperClass(CounterMapper.class);
-        job.setCombinerClass(IDFReducer.class);
-        job.setReducerClass(IDFReducer.class);
+        job.setCombinerClass(EnumerationReducer.class);
+        job.setReducerClass(EnumerationReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
+        job.setNumReduceTasks(1);
 
         FileInputFormat.addInputPath(job, inputPath);
         Path outputPath = new Path(outputDir, OutputDir);
@@ -45,7 +41,7 @@ public class DocumentCounter {
         if (job.waitForCompletion(true)) {
             return outputPath;
         } else {
-            throw new Exception("DocumentCounter.run() was not completed");
+            throw new Exception("WordEnumerator.run() was not completed");
         }
     }
 }

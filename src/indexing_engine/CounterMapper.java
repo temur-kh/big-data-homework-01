@@ -1,4 +1,4 @@
-package indexing_engine.modules;
+package indexing_engine;
 
 import common.TextParser.DocIdText;
 import org.apache.hadoop.io.IntWritable;

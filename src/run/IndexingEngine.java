@@ -1,9 +1,9 @@
-package indexing_engine;
+package run;
 
-import indexing_engine.modules.CorpusParser;
-import indexing_engine.modules.DocumentCounter;
-import indexing_engine.modules.Indexer;
-import indexing_engine.modules.WordEnumerator;
+import indexing_engine.CorpusParser;
+import indexing_engine.DocumentCounter;
+import indexing_engine.Indexer;
+import indexing_engine.WordEnumerator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -11,7 +11,7 @@ import org.apache.hadoop.fs.Path;
 public class IndexingEngine {
     public static void main(String[] args) throws Exception {
         if (args.length != 3) {
-            System.out.println("Usage:\n$hadoop jar <jar_name>.jar IndexingEngine " +
+            System.out.println("Usage:\n$hadoop jar <jar_name>.jar run.IndexingEngine " +
                     "<path to docs on HDFS> <path to output directory on HDFS>");
             return;
         }

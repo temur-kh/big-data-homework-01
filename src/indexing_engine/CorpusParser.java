@@ -1,4 +1,4 @@
-package indexing_engine.modules;
+package indexing_engine;
 
 import common.TextParser;
 import org.apache.hadoop.conf.Configuration;

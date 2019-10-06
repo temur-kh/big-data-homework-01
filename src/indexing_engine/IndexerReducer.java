@@ -1,4 +1,4 @@
-package indexing_engine.modules;
+package indexing_engine;
 
 import common.MapStrConvert;
 import org.apache.hadoop.io.IntWritable;
