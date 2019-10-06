@@ -25,7 +25,7 @@ To begin with, we implemented the whole system and it runs successfully. Mostly,
 - **Architecture of the System** is very similar to what was presented in the guide (Fig. 1). 
 
 <p align="center">
-<img src="https://www.dropbox.com/s/wo2b6amni66djzj/Search%20Engine%20with%20MapReduce.png?dl=1" width="300" />
+<img src="https://user-images.githubusercontent.com/20341995/66276753-39942e00-e89e-11e9-8a9c-e15df9c7c97c.png" width="300" />
 </p>
 
 <p align="center"><i>Figure 1. The Search Engine Architecture</i></p>
