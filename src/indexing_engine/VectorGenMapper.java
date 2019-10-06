@@ -12,7 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class IndexerMapper extends Mapper<Object, Text, IntWritable, Text> {
+public class VectorGenMapper extends Mapper<Object, Text, IntWritable, Text> {
     private HashMap<String, Integer> word2Id;
     private HashMap<String, Integer> word2IDF;
 
@@ -20,8 +20,8 @@ public class IndexerMapper extends Mapper<Object, Text, IntWritable, Text> {
     public void setup(Context context) throws IOException {
         Configuration conf = context.getConfiguration();
         FileSystem fs = FileSystem.get(conf);
-        Path path_words = new Path(conf.get(Indexer.StringWords));
-        Path path_idf = new Path(conf.get(Indexer.StringIDF));
+        Path path_words = new Path(conf.get(VectorGenerator.StringWords));
+        Path path_idf = new Path(conf.get(VectorGenerator.StringIDF));
         word2Id = MapStrConvert.hdfsDirStrInt2Map(fs, path_words);
         word2IDF = MapStrConvert.hdfsDirStrInt2Map(fs, path_idf);
 //        fs.close();  // - will produce an error

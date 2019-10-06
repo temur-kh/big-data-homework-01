@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class IndexerReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
+public class VectorGenReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
     @Override
     public void reduce(IntWritable key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
