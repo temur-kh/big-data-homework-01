@@ -6,9 +6,9 @@ import org.apache.hadoop.io.Text;
 import java.util.HashMap;
 
 public class TextParser {
-    public static final String WordSeparator = " ";
+    private static final String WordSeparator = " ";
 
-    private TextParser(Text value) {
+    private TextParser() {
     }
 
     public static String parse(String string) {
@@ -21,12 +21,8 @@ public class TextParser {
                 MapStrConvert.parseInt, MapStrConvert.parseString, MapStrConvert.FileKVSeparator);
     }
 
-    public static String[] getWords(String string) {
+    private static String[] getWords(String string) {
         return string.split(WordSeparator);
-    }
-
-    public static String[] getWords(Text value) {
-        return getDocIdText(value).value.split(WordSeparator);
     }
 
     public static HashMap<String, Integer> countWords(String string) {
@@ -50,6 +46,10 @@ public class TextParser {
             Pair<Integer, String> p = getDocIdText(value);
             docId = p.key;
             text = p.value;
+        }
+
+        public String[] getWords() {
+            return TextParser.getWords(text);
         }
 
         public HashMap<String, Integer> countWords() {

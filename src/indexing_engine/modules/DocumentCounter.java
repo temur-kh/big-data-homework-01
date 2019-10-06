@@ -1,4 +1,4 @@
-package indexer_module;
+package indexing_engine.modules;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -12,8 +12,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class DocumentCounter {
-    public static final String JobName = "document_count";
-    public static final String OutputDir = "document_counter";
+    private static final String JobName = "document_count";
+    private static final String OutputDir = "document_counter";
 
     public static class IDFReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
@@ -33,7 +33,7 @@ public class DocumentCounter {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(DocumentCounter.class);
-        job.setMapperClass(WordEnumerator.CounterMapper.class);
+        job.setMapperClass(CounterMapper.class);
         job.setCombinerClass(IDFReducer.class);
         job.setReducerClass(IDFReducer.class);
         job.setOutputKeyClass(Text.class);

@@ -1,4 +1,4 @@
-package indexer_module;
+package indexing_engine.modules;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -9,11 +9,11 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Indexer {
-    public static final String JobName = "indexer";
+    private static final String JobName = "indexer";
     public static final String OutputDir = "document_vectors";
 
-    public static final String StringIDF = "indexer.idf";
-    public static final String StringWords = "indexer.words";
+    static final String StringIDF = "indexer.idf";
+    static final String StringWords = "indexer.words";
 
     public static Path run(Path path_docId2text, Path path_word2Id, Path path_word2IDF, Path path_outDir)
             throws Exception {

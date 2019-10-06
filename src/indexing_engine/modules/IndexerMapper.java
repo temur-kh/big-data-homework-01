@@ -1,4 +1,4 @@
-package indexer_module;
+package indexing_engine.modules;
 
 import common.MapStrConvert;
 import common.TextParser.DocIdText;
