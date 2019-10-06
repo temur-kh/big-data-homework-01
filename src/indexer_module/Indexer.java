@@ -23,7 +23,7 @@ public class Indexer {
         Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(Indexer.class);
         job.setMapperClass(IndexerMapper.class);
-        job.setCombinerClass(IndexerReducer.class);
+//        job.setCombinerClass(IndexerReducer.class);
         job.setReducerClass(IndexerReducer.class);
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);

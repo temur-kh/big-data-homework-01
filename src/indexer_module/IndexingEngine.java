@@ -15,6 +15,5 @@ public class IndexingEngine {
         Path docCountPath = DocumentCounter.run(parsedCorpusPath, outputDir);
         Path wordEnumPath = WordEnumerator.run(parsedCorpusPath, outputDir);
         Path docVectorsPath = Indexer.run(parsedCorpusPath, wordEnumPath, docCountPath, outputDir);
-
     }
 }

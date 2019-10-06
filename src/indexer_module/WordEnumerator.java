@@ -1,5 +1,6 @@
 package indexer_module;
 
+import common.TextParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -11,26 +12,24 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 public class WordEnumerator {
+    public static class CounterMapper
+            extends Mapper<Object, Text, Text, IntWritable> {
+        private final static IntWritable one = new IntWritable(1);
 
-    public static class WordMapper
-            extends Mapper<Object, Text, Text, IntWritable>{
-        private Set<String> words = new HashSet<>();
+        private Set<String> setOfWords = new HashSet<>();
+        private Text wordText = new Text();
 
-        public void map(Object key, Text value, Context context
-        ) throws IOException, InterruptedException {
-            StringTokenizer token = new StringTokenizer(value.toString());
-            token.nextToken();
-            while (token.hasMoreTokens()) {
-                String nextWord = token.nextToken();
-                words.add(nextWord);
-            }
-            for (String word : words) {
-                context.write(new Text(word), new IntWritable(1));
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+            String[] words = TextParser.getWords(value);
+            setOfWords.addAll(Arrays.asList(words));
+            for (String word : setOfWords) {
+                wordText.set(word);
+                context.write(wordText, one);
             }
         }
     }
@@ -39,11 +38,9 @@ public class WordEnumerator {
             extends Reducer<Text, IntWritable, Text, IntWritable> {
         private static int id = 0;
 
-        public void reduce(Text word, Iterable<IntWritable> values,
-                           Context context
-        ) throws IOException, InterruptedException {
-            this.id += 1;
-            context.write(word, new IntWritable(this.id));
+        public void reduce(Text word, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+            context.write(word, new IntWritable(++id));
         }
     }
 
@@ -51,7 +48,7 @@ public class WordEnumerator {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "WordEnumeration");
         job.setJarByClass(WordEnumerator.class);
-        job.setMapperClass(WordMapper.class);
+        job.setMapperClass(CounterMapper.class);
         job.setCombinerClass(EnumerationReducer.class);
         job.setReducerClass(EnumerationReducer.class);
         job.setOutputKeyClass(Text.class);

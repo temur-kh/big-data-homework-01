@@ -20,8 +20,8 @@ public class IndexerReducer
         for (Text val : values) {
             pairs.add(val.toString());
         }
-        HashMap<Integer, Double> word_id2count = MapStringConverter.string2Map(pairs, MapStringConverter.parseInt,
+        HashMap<Integer, Double> wordId2count = MapStringConverter.stringPairs2Map(pairs, MapStringConverter.parseInt,
                 MapStringConverter.parseDouble, MapStringConverter.sumDouble);
-        context.write(key, new Text(MapStringConverter.map2String(word_id2count)));
+        context.write(key, new Text(MapStringConverter.map2String(wordId2count)));
     }
 }

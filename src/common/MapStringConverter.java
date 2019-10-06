@@ -11,13 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MapStringConverter {
-    private static final String KVSeparator = "=";
-    private static final String PairSeparator = ";";
-    private static final String FileKVSeparator = "\t";
-    private static final String FilePairSeparator = "\n";
+    public static final String KVSeparator = "=";
+    public static final String PairSeparator = ";";
+    public static final String FileKVSeparator = "\t";
+    public static final String FilePairSeparator = "\n";
 
     public static final FromString<Double> parseDouble = Double::parseDouble;
     public static final FromString<Integer> parseInt = Integer::parseInt;
+    public static final FromString<Long> parseLong = Long::parseLong;
     public static final FromString<String> parseString = string -> string;
 
     public static final ValueCombinator selectFormer = (v1, v2) -> v1;
@@ -70,8 +71,8 @@ public class MapStringConverter {
         return new Pair<K, V>(key, value);
     }
 
-    public static <K, V> HashMap<K, V> string2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str,
-                                                  ValueCombinator<V> comb, String separator) {
+    public static <K, V> HashMap<K, V> stringPairs2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str,
+                                                       ValueCombinator<V> comb, String separator) {
         HashMap<K, V> map = new HashMap<>();
         for (String pair : pairs) {
             Pair<K, V> obj = string2Pair(pair, k2str, v2str, separator);
@@ -85,18 +86,18 @@ public class MapStringConverter {
         return map;
     }
 
-    public static <K, V> HashMap<K, V> string2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str,
-                                                  ValueCombinator<V> comb) {
-        return string2Map(pairs, k2str, v2str, comb, KVSeparator);
+    public static <K, V> HashMap<K, V> stringPairs2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str,
+                                                       ValueCombinator<V> comb) {
+        return stringPairs2Map(pairs, k2str, v2str, comb, KVSeparator);
     }
 
-    public static <K, V> HashMap<K, V> string2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str) {
-        return string2Map(pairs, k2str, v2str, selectLatter, KVSeparator);
+    public static <K, V> HashMap<K, V> stringPairs2Map(Iterable<String> pairs, FromString<K> k2str, FromString<V> v2str) {
+        return stringPairs2Map(pairs, k2str, v2str, selectLatter, KVSeparator);
     }
 
     public static <K, V> HashMap<K, V> string2Map(String string, FromString<K> k2str, FromString<V> v2str,
                                                   ValueCombinator<V> comb, String separator) {
-        return string2Map(Arrays.asList(string.split(PairSeparator)), k2str, v2str, comb, separator);
+        return stringPairs2Map(Arrays.asList(string.split(PairSeparator)), k2str, v2str, comb, separator);
     }
 
     public static <K, V> HashMap<K, V> string2Map(String string, FromString<K> k2str, FromString<V> v2str,
@@ -108,8 +109,8 @@ public class MapStringConverter {
         return string2Map(string, k2str, v2str, selectLatter);
     }
 
-    public static <K, V > HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str,
-                                                    ValueCombinator<V> comb) throws IOException {
+    public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str,
+                                                   ValueCombinator<V> comb) throws IOException {
         RemoteIterator<LocatedFileStatus> it = fs.listFiles(parentDir, false);
         ArrayList<String> pairs = new ArrayList<>();
         while (it.hasNext()) {
@@ -120,7 +121,7 @@ public class MapStringConverter {
             String[] lines = in.split(FilePairSeparator);
             pairs.addAll(Arrays.asList(lines));
         }
-        return string2Map(pairs, k2str, v2str, comb, FileKVSeparator);
+        return stringPairs2Map(pairs, k2str, v2str, comb, FileKVSeparator);
     }
 
     public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str) throws IOException {

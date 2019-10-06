@@ -1,7 +1,7 @@
 package indexer_module;
 
 import common.MapStringConverter;
-import common.WordCounter;
+import common.TextParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -26,14 +26,13 @@ public class IndexerMapper
         Path path_idf = new Path(conf.get(Indexer.StringIDF));
         word2Id = MapStringConverter.hdfsDirStrInt2Map(fs, path_words);
         word2IDF = MapStringConverter.hdfsDirStrInt2Map(fs, path_idf);
-        fs.close();
     }
 
     @Override
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-        String[] key_value = value.toString().split("\t");
-        IntWritable doc_id = new IntWritable(Integer.parseInt(key_value[0]));
-        HashMap<String, Integer> doc_map = WordCounter.countWords(key_value[1]);
+        TextParser parser = new TextParser(value);
+        IntWritable doc_id = new IntWritable(parser.docId);
+        HashMap<String, Integer> doc_map = parser.countWords();
         // Write results normalized by word's IDF
         for (String word : doc_map.keySet()) {
             Integer word_id = word2Id.get(word);
