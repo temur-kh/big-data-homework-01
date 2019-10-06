@@ -1,6 +1,6 @@
 package query_module;
 
-import common.MapStringConverter;
+import common.MapStrConvert;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
@@ -13,7 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 import java.util.Map;
 
-public class RelevanceAnalizator {
+public class RelevanceAnalizer {
 
     public static class RelevanceMapper
             extends Mapper<IntWritable, Text, IntWritable, DoubleWritable> {
@@ -24,8 +24,8 @@ public class RelevanceAnalizator {
         ) throws IOException, InterruptedException {
             Configuration conf = context.getConfiguration();
             String queryVectorString = conf.get("query_vector");
-            Map<Integer, Double> queryVector = MapStringConverter.string2Map(queryVectorString, MapStringConverter.parseInt, MapStringConverter.parseDouble);
-            Map<Integer, Double> docVector = MapStringConverter.string2Map(docVectorString.toString(), MapStringConverter.parseInt, MapStringConverter.parseDouble);
+            Map<Integer, Double> queryVector = MapStrConvert.string2Map(queryVectorString, MapStrConvert.parseInt, MapStrConvert.parseDouble);
+            Map<Integer, Double> docVector = MapStrConvert.string2Map(docVectorString.toString(), MapStrConvert.parseInt, MapStrConvert.parseDouble);
 
             Map<Integer, Double> leftVector, rightVector;
             leftVector = queryVector.size() < docVector.size() ? queryVector : docVector;
@@ -72,7 +72,7 @@ public class RelevanceAnalizator {
         conf.set("query_vector", queryVectorString);
 
         Job job = Job.getInstance(conf, "DocumentCount");
-        job.setJarByClass(RelevanceAnalizator.class);
+        job.setJarByClass(RelevanceAnalizer.class);
         job.setMapperClass(RelevanceMapper.class);
         job.setReducerClass(SwapReducer.class);
         job.setSortComparatorClass(RankComparator.class);

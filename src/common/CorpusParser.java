@@ -17,60 +17,50 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-public class CorpusParser{
-
+public class CorpusParser {
     public static final int PARSE_TEXT = 0;
     public static final int PARSE_URL_TITLE = 1;
 
-    public static class DocTextMapper extends  Mapper<Object, Text, IntWritable, Text>
-    {
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException
-        {
-            String line = value.toString();
+    public static final String TitleUrlSeparator = " ";
+    public static final IntWritable zero = new IntWritable(0);
+
+    public static class DocTextMapper extends Mapper<Object, Text, IntWritable, Text> {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             try {
-                JSONObject jb = new JSONObject(line);
-                String sid = jb.getString("id");
-                int id = Integer.parseInt(sid);
-                String text = jb.getString("text");
+                JSONObject jb = new JSONObject(value.toString());
+                int id = jb.getInt("id");
+                String text = TextParser.parse(jb.getString("text"));
                 context.write(new IntWritable(id), new Text(text));
-            }catch(JSONException e){
-                context.write(new IntWritable(1), new Text("error"));
+            } catch (JSONException e) {
+                value.set("error ");
+                context.write(zero, value);
             }
         }
     }
 
-    public static class DocUrlTitleMapper extends  Mapper<Object, Text, IntWritable, Text>
-    {
-        private String separator = " ";
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException
-        {
-            String line = value.toString();
+    public static class DocUrlTitleMapper extends Mapper<Object, Text, IntWritable, Text> {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             try {
-                JSONObject jb = new JSONObject(line);
-                String sid = jb.getString("id");
-                int id = Integer.parseInt(sid);
-                String url = jb.getString("url");
+                JSONObject jb = new JSONObject(value.toString());
+                int id = jb.getInt("id");
                 String title = jb.getString("title");
-                context.write(new IntWritable(id), new Text(url + separator + title));
-            }catch(JSONException e){
-                context.write(new IntWritable(1), new Text("error"));
+                String url = jb.getString("url");
+                context.write(new IntWritable(id), new Text(title + TitleUrlSeparator + url));
+            } catch (JSONException e) {
+                value.set("error ");
+                context.write(zero, value);
             }
         }
     }
 
-    public static class DocReducer
-            extends Reducer<IntWritable, Text, IntWritable, Text> {
-
-        public void reduce(IntWritable key, Iterable<Text> texts,
-                           Context context
-        ) throws IOException, InterruptedException {
-            String outputText = "";
-            for(Text text: texts){
-                String t = text.toString();
-                t = t.replace("\n", " ").replace("\r", " ").replace("\t", " ");
-                outputText += t;
+    public static class DocReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
+        public void reduce(IntWritable key, Iterable<Text> texts, Context context)
+                throws IOException, InterruptedException {
+            StringBuilder outputText = new StringBuilder();
+            for (Text text : texts) {
+                outputText.append(text.toString());
             }
-            context.write(key, new Text(outputText));
+            context.write(key, new Text(outputText.toString()));
         }
     }
 
@@ -80,15 +70,15 @@ public class CorpusParser{
         job.setJarByClass(CorpusParser.class);
 
         FileSystem fs = FileSystem.get(conf);
-        Path[] paths = new Path[1];
-        paths[0] = inputPath;
-        FileStatus[] fst = fs.listStatus(paths);
+        FileStatus[] fst = fs.listStatus(inputPath);
 
         for (FileStatus fsi : fst) {
-            if(parseMode == PARSE_TEXT) {
+            if (parseMode == PARSE_TEXT) {
                 MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocTextMapper.class);
-            }else {
+            } else if (parseMode == PARSE_URL_TITLE) {
                 MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocUrlTitleMapper.class);
+            } else {
+                throw new Exception();
             }
         }
 
