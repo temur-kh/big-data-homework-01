@@ -45,7 +45,7 @@ public class DocumentCounter {
         if (job.waitForCompletion(true)) {
             return outputPath;
         } else {
-            throw new Exception();
+            throw new Exception("DocumentCounter.run() was not completed");
         }
     }
 }

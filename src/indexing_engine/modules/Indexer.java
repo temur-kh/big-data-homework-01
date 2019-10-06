@@ -36,7 +36,7 @@ public class Indexer {
         if (job.waitForCompletion(true)) {
             return out;
         } else {
-            throw new Exception("Indexer.run was not completed");
+            throw new Exception("Indexer.run() was not completed");
         }
     }
 }

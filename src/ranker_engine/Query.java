@@ -15,8 +15,11 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import ranker_engine.modules.QueryMapper;
 import ranker_engine.modules.QueryReducer;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ public class Query {
     private static final String OutputDir = "query";
     public static final String OutputDocSeparator = "\\|";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         if (args.length != 4) {
             System.out.println("Usage:\n$hadoop jar <jar_name>.jar Query " +
                     "<path to output directory of IndexingEngine on HDFS> " +
@@ -39,11 +42,17 @@ public class Query {
         String indexer_output = args[1];
         String query = TextParser.parse(args[2]);
         int doc_number = Integer.parseInt(args[3]);
+        Path outputDir = new Path(indexer_output, OutputDir);
         // Setup configuration
         Configuration conf = new Configuration();
         // Add words and idf to conf
         conf.set(StringIEPath, indexer_output);
         conf.set(StringInput, query);
+        // Check output dir
+        FileSystem fs = FileSystem.get(conf);
+        if (fs.exists(outputDir)) {
+            fs.delete(outputDir, true);
+        }
         // Make job
         Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(Query.class);
@@ -51,21 +60,22 @@ public class Query {
         job.setReducerClass(QueryReducer.class);
         job.setOutputKeyClass(DoubleWritable.class);
         job.setOutputValueClass(Text.class);
-
-        Path output = new Path(indexer_output, OutputDir);
         FileInputFormat.addInputPath(job, new Path(indexer_output, Indexer.OutputDir));
-        FileOutputFormat.setOutputPath(job, output);
+        FileOutputFormat.setOutputPath(job, outputDir);
         if (!job.waitForCompletion(true)) {
             return;
         }
         // Success, do output
         conf = job.getConfiguration();
-        FileSystem fs = FileSystem.get(conf);
+        fs = FileSystem.get(conf);
         // Read docId -> title URL
         Path path_titles = new Path(indexer_output, CorpusParser.OutputDir_TITLE_URL);
         HashMap<Integer, String> docId2TitleUrl = MapStrConvert.hdfsDirIntStr2Map(fs, path_titles);
         // Read output
-        ArrayList<Output> outs = readMapRedOutput(fs, output);
+        ArrayList<Output> outs = readMapRedOutput(fs, outputDir);
+        // Remove output dir
+        fs.delete(outputDir, true);
+        fs.close();
         // Extract most relevant doc ids and add their title and url
         ArrayList<String> docs = new ArrayList<>();
         for (Output o : outs) {
@@ -77,8 +87,15 @@ public class Query {
             }
             if (doc_number == 0) break;
         }
+        String docs_inline = String.join("\n", docs);
         // Print output
-        System.out.println(String.join("\n", docs));
+        System.out.println(docs_inline);
+        // Write output
+        LocalDateTime dateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
+        FileWriter fw = new FileWriter("query_" + dateTime.format(formatter) + ".txt");
+        fw.write(docs_inline);
+        fw.close();
     }
 
     public static class Output {

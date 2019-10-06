@@ -41,7 +41,7 @@ public class WordEnumerator {
         if (job.waitForCompletion(true)) {
             return outputPath;
         } else {
-            throw new Exception();
+            throw new Exception("WordEnumerator.run() was not completed");
         }
     }
 }

@@ -12,7 +12,7 @@ public class TextParser {
     }
 
     public static String parse(String string) {
-        string = string.trim().replaceAll("[^a-zA-Z0-9-_' ]+", "");
+        string = string.trim().replaceAll("[^a-zA-Z0-9-_'\\s]+", "");
         return string.replaceAll("\\s+", WordSeparator);
     }
 
