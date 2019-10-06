@@ -17,8 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WordEnumerator {
-    public static class CounterMapper
-            extends Mapper<Object, Text, Text, IntWritable> {
+    public static class CounterMapper extends Mapper<Object, Text, Text, IntWritable> {
         private final static IntWritable one = new IntWritable(1);
 
         private Set<String> setOfWords = new HashSet<>();
@@ -34,8 +33,7 @@ public class WordEnumerator {
         }
     }
 
-    public static class EnumerationReducer
-            extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class EnumerationReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         private static int id = 0;
 
         public void reduce(Text word, Iterable<IntWritable> values, Context context)

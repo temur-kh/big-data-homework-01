@@ -21,44 +21,39 @@ public class CorpusParser {
     public static final int PARSE_TEXT = 0;
     public static final int PARSE_URL_TITLE = 1;
 
-    public static final String UrlTitleSeparator = " ";
-
+    public static final String TitleUrlSeparator = " ";
     public static final IntWritable zero = new IntWritable(0);
 
     public static class DocTextMapper extends Mapper<Object, Text, IntWritable, Text> {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String line = value.toString();
             try {
-                JSONObject jb = new JSONObject(line);
-                String sid = jb.getString("id");
-                int id = Integer.parseInt(sid);
+                JSONObject jb = new JSONObject(value.toString());
+                int id = jb.getInt("id");
                 String text = TextParser.parse(jb.getString("text"));
                 context.write(new IntWritable(id), new Text(text));
             } catch (JSONException e) {
-                context.write(zero, new Text("error"));
+                value.set("error ");
+                context.write(zero, value);
             }
         }
     }
 
     public static class DocUrlTitleMapper extends Mapper<Object, Text, IntWritable, Text> {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-            String line = value.toString();
             try {
-                JSONObject jb = new JSONObject(line);
-                String sid = jb.getString("id");
-                int id = Integer.parseInt(sid);
-                String url = jb.getString("url");
+                JSONObject jb = new JSONObject(value.toString());
+                int id = jb.getInt("id");
                 String title = jb.getString("title");
-                context.write(new IntWritable(id), new Text(url + UrlTitleSeparator + title));
+                String url = jb.getString("url");
+                context.write(new IntWritable(id), new Text(title + TitleUrlSeparator + url));
             } catch (JSONException e) {
-                context.write(zero, new Text("error"));
+                value.set("error ");
+                context.write(zero, value);
             }
         }
     }
 
-    public static class DocReducer
-            extends Reducer<IntWritable, Text, IntWritable, Text> {
-
+    public static class DocReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
         public void reduce(IntWritable key, Iterable<Text> texts, Context context)
                 throws IOException, InterruptedException {
             StringBuilder outputText = new StringBuilder();

@@ -1,6 +1,6 @@
 package indexer_module;
 
-import common.MapStringConverter;
+import common.MapStrConvert;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -9,9 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class IndexerReducer
-        extends Reducer<IntWritable, Text, IntWritable, Text> {
-
+public class IndexerReducer extends Reducer<IntWritable, Text, IntWritable, Text> {
     @Override
     public void reduce(IntWritable key, Iterable<Text> values, Context context)
             throws IOException, InterruptedException {
@@ -20,8 +18,8 @@ public class IndexerReducer
         for (Text val : values) {
             pairs.add(val.toString());
         }
-        HashMap<Integer, Double> wordId2count = MapStringConverter.stringPairs2Map(pairs, MapStringConverter.parseInt,
-                MapStringConverter.parseDouble, MapStringConverter.sumDouble);
-        context.write(key, new Text(MapStringConverter.map2String(wordId2count)));
+        HashMap<Integer, Double> wordId2count = MapStrConvert.stringPairs2Map(pairs, MapStrConvert.parseInt,
+                MapStrConvert.parseDouble, MapStrConvert.sumDouble);
+        context.write(key, new Text(MapStrConvert.map2String(wordId2count)));
     }
 }

@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapStringConverter {
+public class MapStrConvert {
     public static final String KVSeparator = "=";
     public static final String PairSeparator = ";";
     public static final String FileKVSeparator = "\t";
@@ -26,7 +26,7 @@ public class MapStringConverter {
     public static final ValueCombinator<Integer> sumInt = Integer::sum;
     public static final ValueCombinator<Double> sumDouble = Double::sum;
 
-    private MapStringConverter() {
+    private MapStrConvert() {
     }
 
     public static <K, V> String makeStringPair(K key, V value) {
@@ -109,9 +109,9 @@ public class MapStringConverter {
         return string2Map(string, k2str, v2str, selectLatter);
     }
 
-    public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str,
+    public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path dir_path, FromString<K> k2str, FromString<V> v2str,
                                                    ValueCombinator<V> comb) throws IOException {
-        RemoteIterator<LocatedFileStatus> it = fs.listFiles(parentDir, false);
+        RemoteIterator<LocatedFileStatus> it = fs.listFiles(dir_path, false);
         ArrayList<String> pairs = new ArrayList<>();
         while (it.hasNext()) {
             FSDataInputStream inputStream = fs.open(it.next().getPath());
@@ -124,15 +124,27 @@ public class MapStringConverter {
         return stringPairs2Map(pairs, k2str, v2str, comb, FileKVSeparator);
     }
 
-    public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path parentDir, FromString<K> k2str, FromString<V> v2str) throws IOException {
-        return hdfsDir2Map(fs, parentDir, k2str, v2str, selectLatter);
+    public static <K, V> HashMap<K, V> hdfsDir2Map(FileSystem fs, Path dir_path, FromString<K> k2str, FromString<V> v2str) throws IOException {
+        return hdfsDir2Map(fs, dir_path, k2str, v2str, selectLatter);
     }
 
-    public static HashMap<String, Integer> hdfsDirStrInt2Map(FileSystem fs, Path parentDir) throws IOException {
-        return hdfsDir2Map(fs, parentDir, parseString, parseInt);
+    public static HashMap<String, Integer> hdfsDirStrInt2Map(FileSystem fs, Path dir_path) throws IOException {
+        return hdfsDir2Map(fs, dir_path, parseString, parseInt);
     }
 
-    public static HashMap<Integer, String> hdfsDirIntStr2Map(FileSystem fs, Path parentDir) throws IOException {
-        return hdfsDir2Map(fs, parentDir, parseInt, parseString);
+    public static HashMap<Integer, String> hdfsDirIntStr2Map(FileSystem fs, Path dir_path) throws IOException {
+        return hdfsDir2Map(fs, dir_path, parseInt, parseString);
+    }
+
+    public static HashMap<Integer, HashMap<Integer, Double>> getDocId_VectorMap
+            (FileSystem fs, Path dir_path) throws IOException {
+        HashMap<Integer, String> doc2svector = hdfsDirIntStr2Map(fs, dir_path);
+        HashMap<Integer, HashMap<Integer, Double>> map = new HashMap<>();
+        for (Integer key : doc2svector.keySet()) {
+            String svec = doc2svector.get(key);
+            HashMap<Integer, Double> vector = string2Map(svec, parseInt, parseDouble);
+            map.put(key, vector);
+        }
+        return map;
     }
 }

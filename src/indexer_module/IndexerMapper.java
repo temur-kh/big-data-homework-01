@@ -1,6 +1,6 @@
 package indexer_module;
 
-import common.MapStringConverter;
+import common.MapStrConvert;
 import common.TextParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -12,9 +12,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class IndexerMapper
-        extends Mapper<Object, Text, IntWritable, Text> {
-
+public class IndexerMapper extends Mapper<Object, Text, IntWritable, Text> {
     private HashMap<String, Integer> word2Id;
     private HashMap<String, Integer> word2IDF;
 
@@ -24,8 +22,9 @@ public class IndexerMapper
         FileSystem fs = FileSystem.get(conf);
         Path path_words = new Path(conf.get(Indexer.StringWords));
         Path path_idf = new Path(conf.get(Indexer.StringIDF));
-        word2Id = MapStringConverter.hdfsDirStrInt2Map(fs, path_words);
-        word2IDF = MapStringConverter.hdfsDirStrInt2Map(fs, path_idf);
+        word2Id = MapStrConvert.hdfsDirStrInt2Map(fs, path_words);
+        word2IDF = MapStrConvert.hdfsDirStrInt2Map(fs, path_idf);
+//        fs.close();  // - will produce an error
     }
 
     @Override
@@ -39,7 +38,7 @@ public class IndexerMapper
             double word_idf = word2IDF.get(word).doubleValue();
             Double norm_count = doc_map.get(word).doubleValue() / word_idf;
             // Convert to map pair
-            String pair = MapStringConverter.makeStringPair(word_id, norm_count);
+            String pair = MapStrConvert.makeStringPair(word_id, norm_count);
             value.set(pair);
             context.write(doc_id, value);
         }

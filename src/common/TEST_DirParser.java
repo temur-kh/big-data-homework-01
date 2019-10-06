@@ -12,6 +12,6 @@ public class TEST_DirParser {
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(conf);
         Path path = new Path(args[0]);
-        System.out.println(MapStringConverter.hdfsDirIntStr2Map(fs, path).toString());
+        System.out.println(MapStrConvert.hdfsDirIntStr2Map(fs, path).toString());
     }
 }

@@ -1,6 +1,6 @@
 package common;
 
-import common.MapStringConverter.Pair;
+import common.MapStrConvert.Pair;
 import org.apache.hadoop.io.Text;
 
 import java.util.HashMap;
@@ -14,8 +14,8 @@ public class TextParser {
     }
 
     private static Pair<Integer, String> getDocIdText(Text value) {
-        return MapStringConverter.string2Pair(value.toString(),
-                MapStringConverter.parseInt, MapStringConverter.parseString, MapStringConverter.FileKVSeparator);
+        return MapStrConvert.string2Pair(value.toString(),
+                MapStrConvert.parseInt, MapStrConvert.parseString, MapStrConvert.FileKVSeparator);
     }
 
     public static String[] getWords(String string) {

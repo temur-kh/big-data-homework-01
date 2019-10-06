@@ -12,8 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class DocumentCounter {
-    public static class IDFReducer
-            extends Reducer<Text, IntWritable, Text, IntWritable> {
+    public static class IDFReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
 
         public void reduce(Text word, Iterable<IntWritable> values, Context context)
