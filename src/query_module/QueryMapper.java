@@ -8,14 +8,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-public class QueryMapper extends Mapper<Object, Text, DoubleWritable, IntWritable> {
+public class QueryMapper extends Mapper<Object, Text, DoubleWritable, Text> {
     private HashMap<String, Integer> word2Id;
     private HashMap<String, Integer> query_vector;
 
@@ -40,7 +39,8 @@ public class QueryMapper extends Mapper<Object, Text, DoubleWritable, IntWritabl
                 relevance += query_vector.get(word) * doc_vector.vector.get(word_id);
             }
         }
-        context.write(new DoubleWritable(-relevance), new IntWritable(doc_vector.docId));
+        value.set(doc_vector.docId.toString());
+        context.write(new DoubleWritable(-relevance), value);
         // -relevance to out files with bigger relevance at the top of output.
     }
 }

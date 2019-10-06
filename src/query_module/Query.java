@@ -27,16 +27,16 @@ public class Query {
     public static final String OutputDocSeparator = "\\|";
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
+        if (args.length != 4) {
             System.out.println("Usage:\n$hadoop jar <jar_name>.jar Query " +
                     "<path to output directory of IndexingEngine on HDFS> " +
                     "<query in quotes> <number of most relevant docs>");
             return;
         }
         // Get arguments
-        String indexer_output = args[0];
-        String query = TextParser.parse(args[1]);
-        int doc_number = Integer.parseInt(args[2]);
+        String indexer_output = args[1];
+        String query = TextParser.parse(args[2]);
+        int doc_number = Integer.parseInt(args[3]);
         // Setup configuration
         Configuration conf = new Configuration();
         // Add words and idf to conf
@@ -53,8 +53,8 @@ public class Query {
         Path output = new Path(indexer_output, OutputDir);
         FileInputFormat.addInputPath(job, new Path(indexer_output, Indexer.OutputDir));
         FileOutputFormat.setOutputPath(job, output);
-        if (!job.waitForCompletion(false)) {
-            throw new Exception();
+        if (!job.waitForCompletion(true)) {
+            return;
         }
         // Success, do output
         conf = job.getConfiguration();
