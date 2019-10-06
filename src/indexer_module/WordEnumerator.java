@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class WordEnumerator {
+    public static final String JobName = "word_enumeration";
+    public static final String OutputDir = "word_enumerator";
+
     public static class CounterMapper extends Mapper<Object, Text, Text, IntWritable> {
         private final static IntWritable one = new IntWritable(1);
 
@@ -44,7 +47,7 @@ public class WordEnumerator {
 
     public static Path run(Path inputPath, Path outputDir) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "WordEnumeration");
+        Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(WordEnumerator.class);
         job.setMapperClass(CounterMapper.class);
         job.setCombinerClass(EnumerationReducer.class);
@@ -54,7 +57,7 @@ public class WordEnumerator {
         job.setNumReduceTasks(1);
 
         FileInputFormat.addInputPath(job, inputPath);
-        Path outputPath = new Path(outputDir, "word_enumerator");
+        Path outputPath = new Path(outputDir, OutputDir);
         FileOutputFormat.setOutputPath(job, outputPath);
         if (job.waitForCompletion(true)) {
             return outputPath;

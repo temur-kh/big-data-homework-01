@@ -12,6 +12,9 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class DocumentCounter {
+    public static final String JobName = "document_count";
+    public static final String OutputDir = "document_counter";
+
     public static class IDFReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
 
@@ -28,7 +31,7 @@ public class DocumentCounter {
 
     public static Path run(Path inputPath, Path outputDir) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "DocumentCount");
+        Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(DocumentCounter.class);
         job.setMapperClass(WordEnumerator.CounterMapper.class);
         job.setCombinerClass(IDFReducer.class);
@@ -37,7 +40,7 @@ public class DocumentCounter {
         job.setOutputValueClass(IntWritable.class);
 
         FileInputFormat.addInputPath(job, inputPath);
-        Path outputPath = new Path(outputDir, "document_counter");
+        Path outputPath = new Path(outputDir, OutputDir);
         FileOutputFormat.setOutputPath(job, outputPath);
         if (job.waitForCompletion(true)) {
             return outputPath;

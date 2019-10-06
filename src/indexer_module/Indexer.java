@@ -10,6 +10,8 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Indexer {
     public static final String JobName = "indexer";
+    public static final String OutputDir = "document_vectors";
+
     public static final String StringIDF = "indexer.idf";
     public static final String StringWords = "indexer.words";
 
@@ -28,7 +30,7 @@ public class Indexer {
         job.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(job, path_docId2text);
-        Path out = new Path(path_outDir, "document_vectors");
+        Path out = new Path(path_outDir, OutputDir);
         FileOutputFormat.setOutputPath(job, out);
 
         if (job.waitForCompletion(true)) {

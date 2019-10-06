@@ -1,7 +1,7 @@
 package indexer_module;
 
 import common.MapStrConvert;
-import common.TextParser;
+import common.TextParser.DocIdText;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -29,9 +29,9 @@ public class IndexerMapper extends Mapper<Object, Text, IntWritable, Text> {
 
     @Override
     public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
-        TextParser parser = new TextParser(value);
-        IntWritable doc_id = new IntWritable(parser.docId);
-        HashMap<String, Integer> doc_map = parser.countWords();
+        DocIdText doc_text = new DocIdText(value);
+        IntWritable doc_id = new IntWritable(doc_text.docId);
+        HashMap<String, Integer> doc_map = doc_text.countWords();
         // Write results normalized by word's IDF
         for (String word : doc_map.keySet()) {
             Integer word_id = word2Id.get(word);
