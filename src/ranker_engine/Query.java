@@ -1,9 +1,9 @@
-package query_module;
+package ranker_engine;
 
 import common.MapStrConvert;
 import common.TextParser;
-import indexer_module.CorpusParser;
-import indexer_module.Indexer;
+import indexing_engine.modules.CorpusParser;
+import indexing_engine.modules.Indexer;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
@@ -12,6 +12,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import ranker_engine.modules.QueryMapper;
+import ranker_engine.modules.QueryReducer;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,10 +22,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 
 public class Query {
-    public static final String JobName = "query";
+    private static final String JobName = "query";
     public static final String StringIEPath = "query.ei_path";
     public static final String StringInput = "query.input";
-    public static final String OutputDir = "query";
+    private static final String OutputDir = "query";
     public static final String OutputDocSeparator = "\\|";
 
     public static void main(String[] args) throws Exception {
@@ -83,14 +85,14 @@ public class Query {
         double relevance;
         String[] docs;
 
-        public Output(String line) {
+        Output(String line) {
             String[] rel_docs = line.split(MapStrConvert.FileKVSeparator);
             docs = rel_docs[1].split(OutputDocSeparator);
             relevance = Double.parseDouble(rel_docs[0]);
         }
     }
 
-    public static final Comparator<Output> compare = Comparator.comparingDouble(v -> v.relevance);
+    private static final Comparator<Output> compare = Comparator.comparingDouble(v -> v.relevance);
 
     private static ArrayList<Output> readMapRedOutput(FileSystem fs, Path path) throws IOException {
         ArrayList<Output> outs = new ArrayList<>();

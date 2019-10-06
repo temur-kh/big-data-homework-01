@@ -1,4 +1,4 @@
-package indexer_module;
+package indexing_engine.modules;
 
 import common.TextParser;
 import org.apache.hadoop.conf.Configuration;
@@ -22,12 +22,12 @@ public class CorpusParser {
     public static final int PARSE_TEXT = 0;
     public static final int PARSE_TITLE_URL = 1;
 
-    public static final String JobName = "corpus_parser";
-    public static final String OutputDir_TEXT = "corpus_parser_text";
+    private static final String JobName = "corpus_parser";
+    private static final String OutputDir_TEXT = "corpus_parser_text";
     public static final String OutputDir_TITLE_URL = "corpus_parser_title_url";
 
-    public static final String TitleUrlSeparator = " ";
-    public static final IntWritable zero = new IntWritable(0);
+    private static final String TitleUrlSeparator = " ";
+    private static final IntWritable zero = new IntWritable(0);
 
     public static class DocTextMapper extends Mapper<Object, Text, IntWritable, Text> {
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {

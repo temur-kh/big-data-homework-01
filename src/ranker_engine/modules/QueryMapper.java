@@ -1,15 +1,16 @@
-package query_module;
+package ranker_engine.modules;
 
 import common.MapStrConvert;
 import common.TextParser;
 import common.TextParser.DocIdVector;
-import indexer_module.WordEnumerator;
+import indexing_engine.modules.WordEnumerator;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import ranker_engine.Query;
 
 import java.io.IOException;
 import java.util.HashMap;
