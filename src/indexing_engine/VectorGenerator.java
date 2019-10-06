@@ -8,7 +8,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class Indexer {
+public class VectorGenerator {
     private static final String JobName = "indexer";
     public static final String OutputDir = "document_vectors";
 
@@ -23,9 +23,9 @@ public class Indexer {
         conf.set(StringIDF, path_word2IDF.toString());
 
         Job job = Job.getInstance(conf, JobName);
-        job.setJarByClass(Indexer.class);
-        job.setMapperClass(IndexerMapper.class);
-        job.setReducerClass(IndexerReducer.class);
+        job.setJarByClass(VectorGenerator.class);
+        job.setMapperClass(VectorGenMapper.class);
+        job.setReducerClass(VectorGenReducer.class);
         job.setOutputKeyClass(IntWritable.class);
         job.setOutputValueClass(Text.class);
 

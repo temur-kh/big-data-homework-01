@@ -10,21 +10,20 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import run.Query;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-public class QueryMapper extends Mapper<Object, Text, DoubleWritable, Text> {
+public class RankerMapper extends Mapper<Object, Text, DoubleWritable, Text> {
     private HashMap<String, Integer> word2Id;
     private HashMap<String, Integer> query_vector;
 
     @Override
     public void setup(Context context) throws IOException {
         Configuration conf = context.getConfiguration();
-        query_vector = TextParser.countWords(conf.get(Query.StringInput));
+        query_vector = TextParser.countWords(conf.get(Ranker.StringInput));
 
-        String indexer_output = conf.get(Query.StringIEPath);
+        String indexer_output = conf.get(Ranker.StringIEPath);
         Path path_words = new Path(indexer_output, WordEnumerator.OutputDir);
         FileSystem fs = FileSystem.get(conf);
         word2Id = MapStrConvert.hdfsDirStrInt2Map(fs, path_words);
