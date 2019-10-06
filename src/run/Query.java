@@ -32,16 +32,16 @@ public class Query {
     public static final String OutputDocSeparator = "\\|";
 
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
-        if (args.length != 4) {
+        if (args.length != 3) {
             System.out.println("Usage:\n$hadoop jar <jar_name>.jar run.Query " +
                     "<path to output directory of IndexingEngine on HDFS> " +
                     "<query in quotes> <number of most relevant docs>");
             return;
         }
         // Get arguments
-        String indexer_output = args[1];
-        String query = TextParser.parse(args[2]);
-        int doc_number = Integer.parseInt(args[3]);
+        String indexer_output = args[0];
+        String query = TextParser.parse(args[1]);
+        int doc_number = Integer.parseInt(args[2]);
         Path outputDir = new Path(indexer_output, OutputDir);
         // Setup configuration
         Configuration conf = new Configuration();
