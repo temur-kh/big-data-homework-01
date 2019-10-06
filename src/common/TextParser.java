@@ -8,6 +8,9 @@ import java.util.HashMap;
 public class TextParser {
     public static final String WordSeparator = " ";
 
+    private TextParser(Text value) {
+    }
+
     public static String parse(String string) {
         string = string.trim().replaceAll("[^a-zA-Z0-9-_' ]+", "");
         return string.replaceAll("\\s+", WordSeparator);
@@ -39,20 +42,29 @@ public class TextParser {
         return map;
     }
 
-    public Integer docId;
-    public String text;
+    public static class DocIdText {
+        public Integer docId;
+        public String text;
 
-    public TextParser(Text value) {
-        Pair<Integer, String> p = getDocIdText(value);
-        docId = p.key;
-        text = p.value;
+        public DocIdText(Text value) {
+            Pair<Integer, String> p = getDocIdText(value);
+            docId = p.key;
+            text = p.value;
+        }
+
+        public HashMap<String, Integer> countWords() {
+            return TextParser.countWords(text);
+        }
     }
 
-    public String[] getWords() {
-        return getWords(text);
-    }
+    public static class DocIdVector {
+        public Integer docId;
+        public HashMap<Integer, Double> vector;
 
-    public HashMap<String, Integer> countWords() {
-        return countWords(text);
+        public DocIdVector(Text value) {
+            Pair<Integer, String> p = getDocIdText(value);
+            docId = p.key;
+            vector = MapStrConvert.string2Map(p.value, MapStrConvert.parseInt, MapStrConvert.parseDouble);
+        }
     }
 }

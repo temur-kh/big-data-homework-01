@@ -1,5 +1,6 @@
-package common;
+package indexer_module;
 
+import common.TextParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -19,7 +20,11 @@ import java.io.IOException;
 
 public class CorpusParser {
     public static final int PARSE_TEXT = 0;
-    public static final int PARSE_URL_TITLE = 1;
+    public static final int PARSE_TITLE_URL = 1;
+
+    public static final String JobName = "corpus_parser";
+    public static final String OutputDir_TEXT = "corpus_parser_text";
+    public static final String OutputDir_TITLE_URL = "corpus_parser_title_url";
 
     public static final String TitleUrlSeparator = " ";
     public static final IntWritable zero = new IntWritable(0);
@@ -66,23 +71,26 @@ public class CorpusParser {
 
     public static Path run(Path inputPath, Path outputDir, int parseMode) throws Exception {
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "Corpus_Parser");
+        Job job = Job.getInstance(conf, JobName);
         job.setJarByClass(CorpusParser.class);
 
         FileSystem fs = FileSystem.get(conf);
         FileStatus[] fst = fs.listStatus(inputPath);
+        String childDir;
 
-        for (FileStatus fsi : fst) {
-            if (parseMode == PARSE_TEXT) {
+        if (parseMode == PARSE_TEXT) {
+            childDir = OutputDir_TEXT;
+            for (FileStatus fsi : fst)
                 MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocTextMapper.class);
-            } else if (parseMode == PARSE_URL_TITLE) {
+        } else if (parseMode == PARSE_TITLE_URL) {
+            childDir = OutputDir_TITLE_URL;
+            for (FileStatus fsi : fst)
                 MultipleInputs.addInputPath(job, fsi.getPath(), TextInputFormat.class, DocUrlTitleMapper.class);
-            } else {
-                throw new Exception();
-            }
+        } else {
+            throw new Exception();
         }
 
-        Path outputPath = new Path(outputDir, String.format("corpus_parser_%d_mode", parseMode));
+        Path outputPath = new Path(outputDir, childDir);
         FileOutputFormat.setOutputPath(job, outputPath);
 
         job.setReducerClass(DocReducer.class);
