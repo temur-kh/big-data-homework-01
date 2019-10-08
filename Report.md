@@ -3,7 +3,7 @@
 - Abdurasul Rakhimov
 	- Email: a.rahimov@innopolis.ru
 	- Telegram: @C230BL
-- Svyatoslav Prometeev
+- Svyatoslav Semenyuk
 	- Email: s.prometeev@innopolis.ru
 	- Telegram: @Prometheus3375
 - Temur Kholmatov
@@ -39,7 +39,7 @@ r(q,d) = \sum_{i: i\in d, i\in q} q_i \cdot d_i.$$ The main advantage of it is i
 Honestly, it would be difficult to strictly separate the parts of the system by the authors because each team member had more or less contribution to each subsystem. We often held status meetings to discuss work done and further plans as well as tent to follow best practices of git usage to make our lives less painful. Anyway, we could define main contributions of each team member just to report:
 
 - *Abdurasul Rakhimov*: Corpus Parser, Word Enumeration modules, cluster administration
-- *Svyatoslav Prometeev*: VectorGen (also known as Indexer), Ranker (also known as Query Vectorizer and Extractor) modules, Text Parser
+- *Svyatoslav Semenyuk*: VectorGen (also known as Indexer), Ranker (also known as Query Vectorizer and Extractor) modules, Text Parser
 - *Temur Kholmatov*:  Document Count, Relevance Analizer modules, report
 ## Conclusion
 In conclusion, we had good experience working with MapReduce framework on an interesting task - a search engine. During the workflow, we encountered several issues and found solutions to. Though the system we created is quite simple, now it seems to be not much difficult to upgrade it module by module.
