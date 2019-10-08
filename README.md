@@ -1,5 +1,5 @@
 # Assignment №1. MapReduce. Simple Search Engine
-Homework #1 of Introduction to Big Data
+
 # Usage guide
 The following is the command syntax for running Indexer:
 
