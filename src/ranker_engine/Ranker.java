@@ -1,6 +1,7 @@
 package ranker_engine;
 
 import common.MapStrConvert;
+import common.TextParser;
 import indexing_engine.CorpusParser;
 import indexing_engine.VectorGenerator;
 import org.apache.commons.io.IOUtils;
@@ -25,8 +26,9 @@ public class Ranker {
     private static final String OutputDir = "query";
     static final String OutputDocSeparator = "\\|";
 
-    public static ArrayList<String> run(String indexer_output, String parsedQuery, int doc_number) throws Exception {
+    public static ArrayList<String> run(String indexer_output, String query, int doc_number) throws Exception {
         // Setup configuration
+        String parsedQuery = TextParser.parse(query);
         Path outputDir = new Path(indexer_output, OutputDir);
         Configuration conf = new Configuration();
         // Add words and idf to conf

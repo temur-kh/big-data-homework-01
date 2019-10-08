@@ -10,7 +10,9 @@ public class Indexer {
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
             System.out.println("Usage:\n$hadoop jar <jar_name>.jar Indexer " +
-                    "<path to docs on HDFS> <path to output directory on HDFS>");
+                    "<path to docs on HDFS> <path to output directory on HDFS>" +
+                    "\nExample:\n$hadoop jar IBD_HW1.jar Indexer " +
+                    "/docs /indexed_docs");
             return;
         }
         // input corpus files directory

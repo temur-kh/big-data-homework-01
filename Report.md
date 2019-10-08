@@ -45,6 +45,18 @@ Honestly, it would be difficult to strictly separate the parts of the system by 
 In conclusion, we had good experience working with MapReduce framework on an interesting task - a search engine. During the workflow, we encountered several issues and found solutions to. Though the system we created is quite simple, now it seems to be not much difficult to upgrade it module by module.
 ## Appendix
 ### Usage Guide
+To run Indexer use next command:
+```
+$hadoop jar <jar_name>.jar Indexer <path to docs on HDFS> <path to output directory on HDFS>
+```
+Example: `$hadoop jar IBD_HW1.jar Indexer /docs /indexed_docs`
+
+To run Query use next command:
+```
+$hadoop jar <jar_name>.jar Query <path to output directory of Indexer on HDFS> <query in quotes> <number of most relevant docs>
+```
+Example: `$hadoop jar IBD_HW1.jar Query /indexed_docs "what is big data" 3`
+
 ## External References
 1. Assignment #1. MapReduce. Simple Search Engine. link: [https://hackmd.io/BxoTvclHQFWAS9-2ZpABMQ?view](https://hackmd.io/BxoTvclHQFWAS9-2ZpABMQ?view)
 2. Okapi BM25 - The ranking function. link: [https://en.wikipedia.org/wiki/Okapi_BM25](https://en.wikipedia.org/wiki/Okapi_BM25)
